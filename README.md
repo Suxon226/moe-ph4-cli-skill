@@ -88,3 +88,8 @@ The 1.0 root workflow remains stable. The 2.0 layer is where method depth is exp
 ## Disclaimer
 
 This repository is for lawful research workflow automation and educational method development. Users are responsible for software licensing, data rights, and compliance with all applicable institutional, commercial, and legal requirements.
+## v2.1 更新：最终核心药效团压缩
+
+v2.1 将 MOE 候选层、机制 selected 层和最终 core 层明确分离。常规结构型/界面型模型默认输出 `4 mandatory + 0-1 optional`：4 个 mandatory feature 覆盖主锚点、形状锁、方向门控和选择性边界；第 5 个 feature 默认作为 optional 证据点，只有代表独立亚口袋、延展沟槽端点或新的空间机制角色时才升为 mandatory。
+
+这版同时降低 `interaction_pair`、ligand-side/pair-derived feature 和重复 charged anchor 对最终模型的抢占，强调一个空间机制区域只保留一个代表点，以减少过拟合并保持可迁移性。

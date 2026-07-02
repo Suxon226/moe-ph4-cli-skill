@@ -1,12 +1,12 @@
-﻿# v2 公开资料式目标抽取与比较
+# v2 公开资料式目标抽取与比较
 
 ## 为什么需要公开资料式目标
 
-公开证据资料里的药效团往往不是“真值坐标文件”，而是图、表、RMSD、GH score、命中率、对接 pose 和人工解释的组合。2.0 的比较层把这些信息转成可审计的 `article_target.json`，用于判断模型是否学到客观规律。
+公开证据资料里的药效团往往不是“真值坐标文件”，而是图、表、RMSD、GH score、命中率、对接 pose 和人工解释的组合。2.0 的比较层把这些信息转成可审计的 `validation_target.json`，用于判断模型是否学到客观规律。
 
 ## 目标 JSON
 
-使用 `scripts/article_target.example.json` 作为模板。每个 feature 至少包含：
+使用 `scripts/validation_target.example.json` 作为模板。每个 feature 至少包含：
 
 - `family`：`HBA/HBD/Neg/Pos/Hyd/Aro/Metal`。
 - `x/y/z`：与候选模型一致的坐标系。
@@ -19,9 +19,9 @@
 ## 比较入口
 
 ```powershell
-node C:\Users\PC\.qclaw\skills\moe-ph4-cli-v2\scripts\compare_article_target.js `
+node C:\Users\PC\.qclaw\skills\moe-ph4-cli-v2\scripts\compare_validation_target.js `
   --candidate-csv C:\path\to\curated_features.csv `
-  --target-json C:\path\to\article_target.json `
+  --target-json C:\path\to\validation_target.json `
   --out-dir C:\path\to\comparison
 ```
 

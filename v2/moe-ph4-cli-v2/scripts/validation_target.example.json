@@ -1,5 +1,5 @@
 ﻿{
-  "target_name": "article_style_target_example",
+  "target_name": "validation_style_target_example",
   "coordinate_frame": "same aligned PDB/model coordinates as generated candidates",
   "defaults": {
     "strict_radius": 2.0,
@@ -30,4 +30,5 @@
     }
   ]
 }
+
 

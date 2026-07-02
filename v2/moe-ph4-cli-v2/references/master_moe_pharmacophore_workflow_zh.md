@@ -1,5 +1,17 @@
 # 大师级 MOE 药效团构建工作流
 
+## v2.1 最终核心层修正
+
+最终输出必须区分三层：`full_candidates`、`selected_candidates` 和 `final_core_features`。其中 `final_core_features` 才是用于设计、筛选和 MOE 展示的模型层。
+
+常规结构型或界面型模型默认使用 `4 mandatory + 0-1 optional`：
+
+- 4 个 mandatory feature 覆盖主锚点、形状锁、方向门控和选择性边界；
+- 第 5 个 feature 默认 optional，只作为额外证据或设计扩展；
+- 只有第 5 个点代表独立亚口袋、延展沟槽端点或新的空间机制角色时，才允许升为 mandatory；
+- interaction_pair、ligand-side/pair-derived feature 和高分电荷点优先作为证据层，不得在没有独立空间角色时抢占 mandatory 名额；
+- 筛选用模型优先来自 `final_mandatory_features.csv`，optional 层用于解释、设计扩展或 MOE 辅助显示。
+
 本工作流用于从蛋白、肽、配体、复合物或界面结构中构建可解释、可复用、可在 MOE 中展示和筛选的药效团模型。它面向通用药物设计任务，不绑定任何具体靶点、结构编号、外部示例或历史项目。
 
 ## 总目标
@@ -217,3 +229,29 @@ Selected features：
 8. MOE 中结构和药效团同屏展示。
 
 缺少任何一步，都只能称为候选生成，不能称为成熟药效团构建。
+
+## 最终核心层压缩
+
+机制压缩后必须区分两个输出层：
+
+1. `selected_candidates`：证据层，允许保留较宽的候选集合，用于解释、复核和追踪。
+2. `final_core_features`：最终模型层，默认 4-6 个 mandatory feature，用于设计、筛选和 MOE 展示。
+
+最终核心层必须覆盖独立空间机制角色，而不是重复保留同一热点内的多个等价 feature。默认组合为：
+
+- 1-2 个主锚点：强极性、盐桥、突变邻近区、深埋疏水或构象选择性热点；
+- 1-2 个形状锁：中心疏水、芳香壁、埋藏非极性点或刚性几何限制点；
+- 1-2 个方向门控或选择性边界：入口/出口、端基、主链、边缘极性、电荷或局部电场点。
+
+如果候选层超过 4 个点，必须继续压缩，或把弱证据/构象依赖/同微区重复点标记为 optional。interaction_pair、ligand-side/pair-derived feature 和高分电荷点优先作为证据层；只有缺少更好的 site-side 代表点，或它们独立定义方向/端基/亚口袋时，才进入 mandatory。只有延展沟槽、多亚口袋、多结构 consensus 稳定且每个点承担不同机制角色时，才允许超过 4 个 mandatory feature。
+
+推荐执行：
+
+```powershell
+node C:\Users\PC\.qclaw\skills\moe-ph4-cli-v2\scripts\final_core_feature_select.js `
+  --input C:\path\to\selected_candidates.csv `
+  --out-dir C:\path\to\05_curated `
+  --min 4 --max 6 --soft-max 5
+```
+
+详细规则见 `references/final_core_feature_compression_zh.md`。没有 final core 层的输出，只能称为候选策展，不能称为最终药效团模型。

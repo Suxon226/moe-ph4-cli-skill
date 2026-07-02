@@ -1,4 +1,4 @@
-﻿# 2.0 文献驱动药效团迭代协议
+# 2.0 文献驱动药效团迭代协议
 
 本协议用于把高质量药效团公开资料转化为可迁移的机制策展经验。它不替代 1.0 的基础工作流，而是在 1.0 之上增加严格文献复现、误差归因和规则提炼。
 
@@ -42,7 +42,7 @@
 - `L0 metadata`: 题录、DOI、作者、方法类型、PDB/配体输入完整。
 - `L1 feature_family`: feature 数量和 family 与公开资料一致。
 - `L2 spatial_region`: feature 落在公开资料图示/文字对应的口袋区域。
-- `L3 article_style_ph4`: 坐标、半径、可选/必选状态、excluded volume 和 GH/decoy 指标接近公开资料。
+- `L3 validation_target_ph4`: 坐标、半径、可选/必选状态、excluded volume 和 GH/decoy 指标接近公开资料。
 
 2.0 的目标不是每篇都达到 L3，而是让每次失败都产生可迁移的规则增量。
 
@@ -98,9 +98,9 @@
 
 ```text
 public evidence_manifest.json
-article_extraction.md
+validation_extraction.md
 structure_qc.json
-article_style_target.json
+validation_target.json
 generated_model/
 comparison_report.md
 failure_attribution.md

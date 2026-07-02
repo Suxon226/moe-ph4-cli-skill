@@ -1,8 +1,24 @@
-# Mechanism-Aware Pharmacophore Selection Rules
+﻿# Mechanism-Aware Pharmacophore Selection Rules
+
+## v2.1 Final Core Correction
+
+The final core layer is not the same as the selected-candidate evidence layer.
+For ordinary structure-based pocket or interface models, use 4 mandatory
+features by default. A fifth feature should default to optional unless it
+represents an independent subpocket, extended-groove endpoint, or new spatial
+mechanism role.
+
+Mandatory features should be region representatives, not a pile-up of all strong
+contacts. Interaction-pair, ligand-side, and pair-derived features are evidence
+first. They become mandatory only when no better site-side representative exists
+or when they independently define direction, termini, or a distinct subpocket.
+Ordinary mandatory charged anchors are capped at one representative unless a
+second charged feature occupies a distinct microzone and performs a different
+mechanism role.
 
 This file defines transferable rules for compressing MOE pharmacophore candidates
 into a selected model. It intentionally avoids target names, residue numbers, and
-paper-specific examples. The rules are structural chemistry principles.
+source-specific examples. The rules are structural chemistry principles.
 
 ## 1. Core Concept
 
@@ -312,3 +328,45 @@ MOE files:
 
 The report should make the model reusable by another agent or scientist without
 needing access to the conversation that produced it.
+
+## 14. Final Core Feature Count and Role Coverage
+
+The selected candidate layer is not the final pharmacophore model. A mature
+model must include a final core layer that is compressed for practical design
+and screening.
+
+Default final core size:
+
+- 4 mandatory features for ordinary structure-based site or interface models.
+- A fifth feature should default to optional unless it represents an independent
+  subpocket, extended-groove endpoint, or new spatial mechanism role.
+- 7-9 mandatory features only for extended grooves, multi-pocket sites, or
+  cross-domain interfaces where every additional point has an independent
+  structural mechanism role.
+- Extra weak, conformation-dependent, or water-network-dependent points should
+  be optional rather than mandatory.
+
+Role coverage rule:
+
+1. Keep at least one primary anchor when evidence exists: charged, strongly
+   polar, mutation-near, buried hydrophobic, or conformation-selective.
+2. Keep at least one shape lock when evidence exists: hydrophobic core,
+   aromatic wall, buried nonpolar shelf, or rigid steric boundary.
+3. Keep at least one direction gate when evidence exists: terminal, backbone,
+   entry/exit, edge polar, or local electric-field constraint.
+4. Add a selectivity boundary only if it contributes information not already
+   encoded by the anchor, shape lock, or direction gate.
+
+Compression rule:
+
+- Merge repeated features from the same microzone and mechanism role.
+- Prefer one representative feature per spatial role.
+- Do not use target names, PDB IDs, residue numbers, article feature labels, or
+  historical benchmark labels as selection rules.
+- A high-scoring feature without an independent mechanism rationale remains an
+  auxiliary candidate, not a final core feature.
+
+See `references/final_core_feature_compression_zh.md` for the operational
+Chinese workflow and `scripts/final_core_feature_select.js` for an executable
+candidate-to-core compressor.
+

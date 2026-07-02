@@ -1,4 +1,4 @@
-# v2 MOE 原生药效团生成协议
+﻿# v2 MOE 原生药效团生成协议
 
 ## 目标
 
@@ -12,7 +12,7 @@
 - `03_contacts/`：接触图和水桥/盐桥/疏水墙候选。
 - `04_candidates/`：归一化后的全量候选池。
 - `05_curated/`：机制压缩后的最终模型。
-- `06_comparison/`：与文章式目标或验证集的 strict/region/GH 风格比较。
+- `06_comparison/`：与公开资料式目标或验证集的 strict/region/GH 风格比较。
 - `07_reports/`：审计报告。
 
 ## 可执行入口
@@ -33,18 +33,39 @@ node C:\Users\PC\.qclaw\skills\moe-ph4-cli-v2\scripts\moe_native_site_ph4.js `
 
 注意：`ph4_AnnotationRec` 已被验证能返回 MOE annotation record，但该 record 不是 `ph4_QueryCreateF` 可直接接受的 feature tagvector；它需要继续解析后才能进入 CSV。当前版本明确标记为 `pdb_contact_preannotation_to_moe_ph4`，不要把它误称为已经完全解析了 MOE annotation records。
 
+## 多结构公开资料式 consensus
+
+对于文献中使用多个共晶结构共同建模的药效团，不应把单个 PDB 的 selected model 当成同法复现。使用：
+
+```powershell
+node C:\Users\PC\.qclaw\skills\moe-ph4-cli-v2\scripts\consensus_multistructure_ph4.js `
+  --config C:\path\to\consensus_config.json --run-moe
+```
+
+该脚本会：
+
+1. 读取多个结构各自的 raw feature CSV。
+2. 用 receptor chain 的共同 `CA` 原子叠合到参考结构。
+3. 将各结构 raw feature 坐标转到同一坐标系。
+4. 进行空间聚类，得到跨结构 consensus hotspots。
+5. 按公开资料式 feature-class 目标或通用机制规则选择代表点。
+6. 调用 MOE `ph4_QueryCreateF/ph4_QueryWriteFile` 写出 consensus `.ph4`。
+
+MOE 在 `.ph4` 中会把 mixed feature 写成内部表达式，例如 `Ani&Acc` 常写为 `Ani$mAcc`，`Don&Acc` 可写为 `Don$mAcc`。
+
 ## MOE 层原则
 
 1. 先做结构 QC，再进 MOE。没有链、配体/肽、辅因子、金属、水和缺失区判断，MOE 原始点会很容易变成“哪里有极性原子就哪里有点”。
 2. MOE/adapter 原始注释只作为候选池，不等于最终药效团。最终模型必须经过位点分区、冗余合并、能量/几何/可替代性筛选。
-3. 默认采用 ligand/peptide-side perspective。多数文章中的 Query Pharmacophore 描述的是候选分子需要携带的化学功能团，而不是受体互补点。
+3. 默认采用 ligand/peptide-side perspective。多数公开资料中的 Query Pharmacophore 描述的是候选分子需要携带的化学功能团，而不是受体互补点。
 4. 对 `ph4_AnnotationPairs`，SVL 选项必须保留 receptor annotation 语义；若日志出现 `exit NYET`，优先检查 `rec:1`、原子向量和 site selection。
 5. `.ph4` 必须与结构在 MOE 中共同展示，确认每个点确实落在相应口袋、肽段、辅因子或热点附近。
 
 ## 从原始候选到最终模型
 
 1. 按空间微区聚类：同一化学机制、距离小于约 2.0-3.0 Å 的点优先合并。
-2. 按功能家族压缩：同一微区内 `Neg/HBA`、`Aro/Hyd` 可按文章视角和化学可替代性合并；`Pos` 与 `HBD` 不能轻易互换。
+2. 按功能家族压缩：同一微区内 `Neg/HBA`、`Aro/Hyd` 可按公开资料视角和化学可替代性合并；`Pos` 与 `HBD` 不能轻易互换。
 3. 按机制保留：埋藏锚点、方向性强的盐桥/氢键、被多篇或多构象支持的热点优先。
 4. 按筛选能力剔除：暴露、溶剂可替代、与多数候选均可满足、或只重复描述同一骨架方向的点降级为 auxiliary 或删除。
 5. 最终 selected 模型一般应少于全量候选池很多；如果 selected 与 full candidates 几乎等量，说明机制压缩不足。
+
