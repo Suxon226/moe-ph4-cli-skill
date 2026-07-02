@@ -41,6 +41,7 @@ The workflow does not treat MOE receptor annotations as the final model. It comb
 - `SKILL.md`: agent-facing skill entry point.
 - `references/`: transferable workflow and mechanism curation rules.
 - `scripts/`: reusable command-line scripts for structure QC, curation, and `.ph4` export.
+- `v2/`: literature-iterative 2.0 workflow that keeps the 1.0 baseline stable while adding article-model reconstruction, strict failure attribution, and transferable rule refinement.
 
 ## Minimal Usage
 
@@ -71,6 +72,18 @@ The output includes:
 药效团不是“MOE 标出来的全部表面点”，而是一个信息压缩问题：用尽量少、尽量独立、机制可解释的空间化学约束，描述一个分子为什么能在该位点结合。
 
 This skill is written as a transferable workflow. It intentionally avoids target-specific examples, benchmark language, and case-specific residue memory.
+
+## 2.0 Literature-Iterative Edition
+
+Version 2.0 is stored under `v2/moe-ph4-cli-v2`. It adds a literature-driven iteration layer:
+
+- classify articles by pharmacophore methodology;
+- reconstruct article-style models when public inputs are sufficient;
+- compare generated models against feature-family and spatial-region targets;
+- attribute failures to structure preparation, MOE candidate generation, contact-derived candidates, family normalization, or selected compression;
+- write only transferable rule deltas back into the 2.0 mechanism curation layer.
+
+The 1.0 root workflow remains stable. The 2.0 layer is where method depth is expanded through controlled literature iteration.
 
 ## Disclaimer
 

@@ -1,0 +1,21 @@
+{
+  "job_id": "pharmacophore_job",
+  "structure": "C:/path/to/structure.pdb",
+  "full_features_csv": "C:/path/to/full_features.csv",
+  "output_dir": "C:/path/to/output",
+  "moe_bin": "C:/Program Files/moe2024/bin-win64",
+  "receptor_chains": ["A"],
+  "ligand_chains": ["B"],
+  "ligand_residues": [],
+  "site_residues": [],
+  "exclude_residue_names": ["HOH", "WAT"],
+  "contact_distance": 4.5,
+  "site_distance": 6.0,
+  "broad_site_distance": 8.0,
+  "selected_count": 6,
+  "feature_radius": 1.4,
+  "feature_perspective": "ligand",
+  "min_family_diversity": 3,
+  "write_display_svl": true,
+  "notes": "Declare receptor and ligand or peptide policy explicitly. Do not rely on chain order."
+}
