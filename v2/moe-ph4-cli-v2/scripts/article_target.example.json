@@ -1,0 +1,32 @@
+{
+  "target_name": "article_style_target_example",
+  "coordinate_frame": "same aligned PDB/model coordinates as generated candidates",
+  "defaults": {
+    "strict_radius": 2.0,
+    "region_radius": 4.5
+  },
+  "features": [
+    {
+      "id": "T1",
+      "family": "Neg",
+      "aliases": ["HBA"],
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "required": true,
+      "zone": "polar_anionic_cap",
+      "rationale": "Article-style ligand-query feature for a strong anionic or acceptor-rich group."
+    },
+    {
+      "id": "T2",
+      "family": "Hyd",
+      "aliases": ["Aro"],
+      "x": 5.0,
+      "y": 0.0,
+      "z": 0.0,
+      "required": true,
+      "zone": "buried_nonpolar_anchor",
+      "rationale": "Hydrophobic or aromatic anchoring region after mechanism compression."
+    }
+  ]
+}

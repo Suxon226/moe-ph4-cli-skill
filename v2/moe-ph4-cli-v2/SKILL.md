@@ -1,181 +1,123 @@
----
-name: moe-ph4-cli-v2
-description: Version 2.0 MOE pharmacophore workflow skill with literature-driven iteration, strict article-model reconstruction, mechanism-aware compression, and transferable curation rule refinement. Use when the task requires MOE pharmacophore generation, receptor-ligand or receptor-peptide pharmacophore curation, article-model reconstruction, .ph4 query writing, or reproducible pharmacophore workflow automation.
----
+# moe-ph4-cli-v2
 
-# MOE Pharmacophore CLI
+Use this skill for MOE-based pharmacophore construction, mechanism-curated feature compression, article-style comparison, and literature-iterative improvement. Version 2 keeps the 1.0 master workflow stable and adds a literature/validation loop that can deepen rules without memorizing target names, PDB IDs, residue numbers, or article-specific feature IDs.
 
-Version: 2.0 literature-iterative edition.
+## Operating Principles
 
-Version 1.0 is a stable baseline. Version 2.0 adds a separate literature-driven
-iteration layer: collect legitimate article inputs, classify pharmacophore
-methodology, reconstruct article-style models when possible, compare mechanism
-gaps, and update only transferable curation rules.
+1. MOE is the primary raw pharmacophore engine. Treat MOE as user-installed licensed software; this skill does not include MOE binaries, license files, authorization codes, proprietary databases, or license bypassing.
+2. The LLM is the curator, not the raw feature generator. Use MOE/structure evidence to create the candidate pool, then compress by mechanism.
+3. Pharmacophore features are spatial chemical hypotheses. Do not blindly copy all MOE annotations, contact atoms, residues, or paper figures.
+4. Preserve transferability. Rules must be phrased as pocket geometry, chemistry, evidence tier, feature perspective, and screening utility, not as specific protein memories.
+5. Show the final pharmacophore and structure together in MOE before concluding.
 
-This skill turns MOE into a reproducible pharmacophore engine. It is not a simple
-surface-feature dump. The required output is a mechanism-curated pharmacophore:
-a compact set of spatial and chemical constraints that a ligand, peptide, or
-designed molecule must satisfy at a defined binding site.
+## Required Workflow
 
-## Required Reading
+1. Prepare inputs in a fresh run directory:
+   - `00_inputs/structure.pdb`
+   - optional ligand/peptide/cofactor notes
+   - optional article-style target JSON for validation
+2. Run structure QC:
+   - identify receptor chains, peptide/ligand chains, cofactors, metals, waters, missing segments, and contact zones.
+   - script: `scripts/structure_qc.js`
+3. Generate MOE raw candidates:
+   - script: `scripts/moe_native_site_ph4.js`
+   - output: `02_moe_raw/moe_raw_site_query.ph4`, `02_moe_raw/moe_raw_features.csv`, MOE log, manifest.
+4. Normalize and curate candidates:
+   - script: `scripts/master_moe_ph4_curate.js`
+   - output: `05_curated/curated_features.csv`, `05_curated/curated_model.ph4`, `curation_report.md`, display SVL.
+5. Display pharmacophore with structure in MOE:
+   - use generated `.ph4` and display helper SVL.
+6. If article-style evidence is available, compare after generation:
+   - script: `scripts/compare_article_target.js`
+   - output: strict/region coverage, missing zones, redundant selected features.
+7. Update transferable rules only when an error recurs across mechanism classes. Never add target-specific memorized fixes.
 
-Before generating or compressing a pharmacophore, read and apply:
+## Standard Directory Layout
 
-1. `references/master_moe_pharmacophore_workflow_zh.md`
-2. `references/selection_mechanism_rules.md`
-3. `references/family_compression_segment_rules_zh.md`
-4. `references/v2_literature_iteration_protocol_zh.md`
-5. `literature_corpus/niu_miaomiao_pharmacophore_corpus.json`
-6. `references/api_reference.md`
-7. `references/svl_errors.md` when debugging MOE/SVL execution
+- `00_inputs/`: structures, ligand/peptide notes, user-provided public inputs.
+- `01_structure_qc/`: chain and pocket QC.
+- `02_moe_raw/`: MOE raw pharmacophore files, logs, manifests.
+- `03_contacts/`: contact maps and geometric evidence.
+- `04_candidates/`: normalized full candidate features.
+- `05_curated/`: selected pharmacophore model and curation report.
+- `06_visualization/`: MOE display helpers.
+- `06_comparison/`: article-style comparison, GH/enrichment reports when available.
+- `07_reports/`: final audit trail.
 
-## Non-Negotiable Principles
+## Scripts
 
-1. Do not use the first protein chain by default.
-   Identify receptor chains, ligand or peptide chains, cofactors, waters, ions,
-   and symmetry copies from the structure and from the user's stated target.
+- `scripts/structure_qc.js`: PDB chain, residue, ligand/peptide, and contact QC.
+- `scripts/moe_native_site_ph4.js`: emits and optionally runs a MOE SVL driver for raw site pharmacophore generation.
+- `scripts/master_moe_ph4_curate.js`: mechanism-curates normalized full candidate CSV into selected `.ph4`.
+- `scripts/write_selected_ph4.js`: writes selected features to `.ph4`.
+- `scripts/compare_article_target.js`: compares curated features with article-style target JSON.
+- `scripts/master_ph4_config.example.json`: curation config template.
+- `scripts/moe_native_config.example.json`: MOE raw generation config template.
+- `scripts/article_target.example.json`: article target comparison template.
 
-2. Do not use ligand centroid distance as the primary pocket definition.
-   For peptides and extended ligands, define the pocket by receptor-atom to
-   ligand-atom minimum distances.
+## Required References
 
-3. Do not treat `ph4_AnnotationRec` as a complete pharmacophore.
-   Receptor annotation is a candidate source. The selected model must be
-   constrained by receptor-ligand or receptor-peptide contacts, pocket geometry,
-   feature family balance, and mechanistic nonredundancy.
+Read these as needed for the task:
 
-4. Do not rank selected features by raw feature density or contact count alone.
-   Compression must preserve independent binding constraints: polar registration,
-   hydrophobic or aromatic anchoring, electrostatic clamps, shape boundaries,
-   metal/cofactor coordination where relevant, and ligand-accessible geometry.
+- `references/master_moe_pharmacophore_workflow_zh.md`: 1.0 stable master workflow.
+- `references/v2_moe_native_generation_protocol_zh.md`: MOE-native raw generation layer.
+- `references/v2_mechanism_compression_deep_rules_zh.md`: generalized mechanism-compression rules.
+- `references/v2_article_target_comparison_zh.md`: article-style target extraction and strict/region comparison.
+- `references/v2_literature_iteration_protocol_zh.md`: how to iterate against public literature without overfitting.
+- `references/v2_transferable_rule_deltas_zh.md`: rule deltas discovered during v2 iterations.
+- `references/selection_mechanism_rules.md`: selection and ranking logic.
+- `references/family_compression_segment_rules_zh.md`: family and segment compression.
+- `references/api_reference.md`: MOE/SVL pharmacophore API notes.
+- `references/svl_errors.md`: known MOE/SVL failure modes.
+- `references/v2_moe_svl_adapter_notes_zh.md`: smoke-tested MOE/SVL adapter constraints for `moebatch -run`.
+- `literature_corpus/niu_miaomiao_pharmacophore_corpus.json`: public literature corpus for rule iteration.
 
-5. Do not leave MOE feature expressions unnormalized.
-   Convert native expressions such as `Don2`, `Acc2`, `Don$mAcc`, `Hyd`, and
-   aromatic or charge annotations into stable feature families before scoring or
-   selecting.
+## MOE Raw Generation
 
-6. Do not output an unexplained `.ph4`.
-   Every selected feature must carry provenance: source, chain, nearby residues
-   or atoms, feature family, role, support distance, redundancy group, and reason
-   for inclusion.
-
-## Standard Deliverables
-
-For each pharmacophore job, create a run directory with:
-
-- `00_inputs/`: copied input PDB/MOE files and user config
-- `01_structure_qc/structure_qc.json`
-- `02_moe_raw/`: MOE-generated `.ph4`, `.moe`, logs, and raw CSV export
-- `03_contacts/contact_map.csv`
-- `04_candidates/full_features.csv`
-- `05_curated/curated_features.csv`
-- `05_curated/curated_model.ph4`
-- `05_curated/curation_report.md`
-- `06_visualization/`: MOE session/script that displays structure plus pharmacophore
-- `run_manifest.json`: paths, command lines, tool versions, and checksums
-
-Use names that describe the target class, modality, binding site, or design job.
-
-## Execution Workflow
-
-1. Prepare inputs.
-   Require a structure file, target site definition, receptor chain policy, and
-   ligand/peptide/cofactor policy. If the site is unknown, run chain and pocket
-   inference first and report uncertainty.
-
-2. Run structure QC.
-   Detect chains, residue counts, ligands, peptides, nucleotides, cofactors,
-   ions, waters, alternate locations, missing atoms, and chain copies.
-
-3. Define the pharmacophore site.
-   Prefer receptor-ligand or receptor-peptide atom contacts. Use 4.5-5.0 A for
-   direct polar/contact support, 6.0 A for binding-site shell, and 8.0 A only for
-   broad cofactors, nucleotides, induced pockets, or secondary walls.
-
-4. Generate MOE raw candidate features.
-   Use MOE native pharmacophore functions through `moebatch`. Generate receptor
-   annotation in the pocket region and, when ligand or peptide atoms are present,
-   generate interaction-pair candidates. Keep both raw `.ph4` and parsed CSV.
-
-5. Add contact-derived mechanism candidates.
-   Build candidates from atom-level contacts that MOE receptor annotation can
-   miss: backbone hydrogen bonds, terminal clamps, peptide-side donors/acceptors,
-   hydrophobic ridges, aromatic walls, charge pairs, metal/ion coordination, and
-   water-mediated constraints when supported.
-
-6. Normalize feature families.
-   Convert all candidates into `HBD`, `HBA`, `Hyd`, `Aro`, `Pos`, `Neg`,
-   `Metal`, `ExcludedVolume`, or `Mixed`. Preserve the original MOE expression.
-
-7. Compress by mechanism.
-   Use `scripts/master_moe_ph4_curate.js` or an equivalent implementation of
-   the same rules. The selected model should be compact, nonredundant, and
-   family-balanced, with one representative per independent binding zone.
-
-8. Export and visualize.
-   Write `.ph4`, `curated_features.csv`, and a MOE display script/session that
-   shows receptor, ligand or peptide if present, pocket residues, full candidates,
-   and selected pharmacophore together.
-
-9. Quality control.
-   Confirm that selected features are inside the intended site, ligand-accessible,
-   not all from one chain copy, not all one family, and not redundant near-duplicates.
-
-## MOE Path Discovery
-
-Common Windows MOE path:
+Example:
 
 ```powershell
-$moeBin = "C:\Program Files\moe2024\bin-win64"
-$moebatch = Join-Path $moeBin "moebatch.exe"
-Test-Path $moebatch
+node C:\Users\PC\.qclaw\skills\moe-ph4-cli-v2\scripts\moe_native_site_ph4.js `
+  --config C:\path\to\moe_native_config.json --run
 ```
 
-When spaces or non-ASCII paths cause SVL trouble, copy the needed run files to a
-short ASCII work directory under `C:\tmp`, run MOE there, and copy outputs back.
+The generated SVL is intentionally inspectable. If a MOE version changes function signatures, inspect `02_moe_raw/moe_native_site_ph4.log` and `references/svl_errors.md`, then adjust only the MOE adapter layer. Do not weaken the downstream mechanism-curation rules to compensate for an upstream extraction issue.
 
-## Script Entry Points
+## Article-Style Comparison
 
-Use these reusable scripts from this skill:
-
-- `scripts/master_ph4_config.example.json`: configuration template
-- `scripts/master_moe_ph4_curate.js`: mechanism-aware selected model builder
-- `scripts/write_selected_ph4.js`: CSV to MOE `.ph4` writer
-- `scripts/structure_qc.js`: chain, ligand, peptide, cofactor, and pocket QC
-
-Typical curation call:
+Example:
 
 ```powershell
-node C:\Users\PC\.qclaw\skills\moe-ph4-cli\scripts\master_moe_ph4_curate.js `
-  --config C:\path\to\run\config.json
+node C:\Users\PC\.qclaw\skills\moe-ph4-cli-v2\scripts\compare_article_target.js `
+  --candidate-csv C:\path\to\curated_features.csv `
+  --target-json C:\path\to\article_target.json `
+  --out-dir C:\path\to\06_comparison
 ```
 
-The config must point to the PDB structure and to the MOE full feature CSV.
-If a ligand, peptide, or site residue set is present, declare it explicitly.
+Interpretation:
 
-## SVL Guardrails
+- `selected strict`: same family and near-identical coordinates.
+- `selected region`: same mechanism region within article-level tolerance.
+- high full-candidate coverage but low selected coverage means compression/ranking failed.
+- low full-candidate coverage means upstream structure/MOE/site perspective failed.
 
-- Use `/` path separators inside SVL strings.
-- Declare MOE functions used by batch scripts.
-- Avoid `Atoms c(1)` unless the config explicitly selects chain 1.
-- Prefer site-restricted atom sets over whole-receptor annotation.
-- Use `ph4_AnnotationPairs` or contact-derived candidates whenever ligand or
-  peptide atoms are present.
-- Always write a marker file and MOE log for batch execution.
+## Curation Rules
 
-## Output Acceptance Checklist
+1. Lock feature perspective first. Most query pharmacophores describe ligand/peptide-side functional groups.
+2. Strong ionic groups keep their dominant family: phosphate/sulfate/carboxylate as `Neg` with possible `HBA` alias; guanidinium/protonated amines as `Pos`.
+3. Aromatic walls are projected to ligand-side `Aro` only when shape/π recognition is discriminating; otherwise compress to `Hyd`.
+4. Same microzone and same mechanism should be represented by one selected feature unless two independent chemical hypotheses are required.
+5. Buried, directional, low-substitutability features outrank exposed or solvent-replaceable annotations.
+6. Do not tune rules to reproduce a specific paper. Add a rule only if it can be justified by general physical chemistry or model-validation logic.
 
-A pharmacophore model is acceptable only if:
+## Completion Criteria
 
-- The site definition is documented.
-- The receptor and ligand/peptide chain choices are documented.
-- Full candidates include MOE native features and contact-derived candidates
-  where ligand or peptide geometry exists.
-- The selected model contains independent constraints rather than duplicate
-  points in one local patch.
-- Hydrophobic/aromatic, polar, charged, and shape roles are considered according
-  to pocket chemistry, not forced to a fixed quota.
-- The `.ph4` opens in MOE together with the structure and displays at the
-  intended site.
-- The report explains why each selected feature was kept and what design role it
-  serves.
+A run is complete only when it contains:
+
+- structure QC record,
+- MOE raw generation record or explicit MOE failure log,
+- full candidate pool,
+- mechanism-curated selected `.ph4`,
+- structure-plus-pharmacophore display artifact,
+- curation report with feature perspective and compression rationale,
+- comparison report when article-style evidence is available.

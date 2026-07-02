@@ -1,134 +1,135 @@
 {
-  "corpus_name": "niu_miaomiao_pharmacophore_literature_corpus",
-  "version": "2.0",
-  "purpose": "Use legally available literature metadata and user-provided files to iteratively improve transferable MOE pharmacophore mechanism curation rules.",
-  "important_boundary": "This corpus stores bibliographic and methodological metadata. It must not store proprietary MOE files, license data, paywalled full text, or target-specific rules inside generic curation rules.",
+  "corpus_name": "niu_miaomiao_pharmacophore_and_virtual_screening_corpus",
+  "version": "2.1",
+  "updated_at": "2026-07-02",
+  "purpose": "Support transferable MOE pharmacophore workflow iteration by separating literature methods, validation evidence, and generalizable mechanism rules.",
+  "important_boundary": [
+    "Do not encode target names, PDB IDs, residue numbers, feature labels, or article-specific coordinates into generic rules.",
+    "Use article evidence to extract physical-chemical principles: feature perspective, pocket segmentation, dominant chemical family, redundancy compression, and validation logic.",
+    "Ligand-based training-set models and structure-based MOE Query models must not be mixed as if they had the same ground truth."
+  ],
   "method_classes": {
-    "ligand_based_training_set": "Pharmacophore generated from active/inactive ligand training sets, commonly HypoGen/common feature/SAR driven.",
-    "structure_based_moe_query": "Pharmacophore generated from a structure, binding pocket, ligand or peptide complex, commonly via MOE Query Editor or receptor-ligand interaction features.",
-    "hybrid_virtual_screening": "Pharmacophore used together with docking, MD, MM/PBSA or experimental validation."
+    "ligand_based_training_set": "HypoGen/3D-QSAR or active/inactive training-set pharmacophore. Useful for validation strategy, GH/enrichment thinking, and feature count discipline; not a direct structure-reproduction target.",
+    "structure_based_moe_query": "Complex- or pose-derived MOE query pharmacophore. Useful for testing feature perspective, coordinates, family compression, and selected-feature curation.",
+    "hybrid_virtual_screening": "Pharmacophore plus docking, MD, MM/GBSA, SAR, or biological assay filtering. Useful for multi-stage prioritization and deciding which pharmacophore points should survive compression.",
+    "peptide_interface_design": "Protein-peptide or peptide-like interface model. Useful for segment-aware anchors, backbone-register constraints, and distinguishing side-chain hotspots from generic polar contacts."
   },
   "entries": [
     {
-      "id": "pde4_ligand_based_hypogen_2013",
-      "title": "Pharmacophore Modeling and Virtual Screening Studies to Identify New cAMP Phosphodiesterase 4 Inhibitors",
-      "authors_include": ["Miaomiao Niu"],
-      "year": 2013,
-      "source_url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0082360",
-      "doi": "10.1371/journal.pone.0082360",
+      "id": "pde4_ligand_based_hypogen_plosone_2013",
+      "citation_label": "PDE4 ligand-based pharmacophore, PLOS ONE 2013",
+      "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0082360",
       "method_class": "ligand_based_training_set",
-      "reported_pharmacophore": "HypoGen ligand-based model; not a pure MOE structure-derived query.",
-      "reconstruction_level_possible": "L1 feature_family if feature list is extracted; L3 requires original training set and HypoGen settings.",
-      "value_for_v2": "Separates ligand-training-set pharmacophore logic from structure-contact MOE logic; reinforces that structure curation cannot be claimed as exact HypoGen reproduction."
+      "pharmacophore_source": "active/inactive ligand training set and validation set",
+      "what_it_can_teach": [
+        "Use training-set diversity and decoy/enrichment validation to judge whether a compact model is selective.",
+        "A model can be scientifically useful even when it is not structure-derived; do not force it into PDB-coordinate comparison.",
+        "Feature count should be disciplined by predictive ability, not by how many contacts are chemically imaginable."
+      ],
+      "what_not_to_copy": [
+        "Do not treat ligand-based feature positions as receptor-pocket ground truth unless the coordinate frame has been explicitly aligned and validated."
+      ]
     },
     {
-      "id": "aminopeptidase_n_protocol_training_set",
-      "title": "Establishment of screening protocol for identification of aminopeptidase N inhibitors",
-      "authors_include": ["Miaomiao Niu"],
-      "year": 2014,
-      "source_url": "https://pubmed.ncbi.nlm.nih.gov/?term=Establishment+of+screening+protocol+for+identification+of+aminopeptidase+N+inhibitors+Miaomiao+Niu",
+      "id": "plk1_pbd_structure_moe_query_molecules_2020",
+      "citation_label": "PLK1-PBD structure-based MOE query, Molecules 2020",
+      "url": "https://www.mdpi.com/1420-3049/25/1/107",
+      "method_class": "structure_based_moe_query",
+      "pharmacophore_source": "protein-peptide or peptide-like complex/pose interpreted as MOE query pharmacophore",
+      "what_it_can_teach": [
+        "Article-style query points often represent ligand/peptide-side functional groups rather than receptor-complement atoms.",
+        "Strong anionic peptide-like groups should retain Neg/HBA semantics after compression.",
+        "Receptor aromatic or hydrophobic walls can justify ligand-side Aro/Hyd projection when they define shape-selective anchoring."
+      ],
+      "iteration_notes": [
+        "Used in v2 smoke iteration because public structure can test chain detection, peptide interface segmentation, and MOE adapter execution."
+      ]
+    },
+    {
+      "id": "parp1_structure_moe_query_molecules_2019",
+      "citation_label": "PARP-1 structure-based pharmacophore, Molecules 2019",
+      "url": "https://www.mdpi.com/1420-3049/24/23/4258",
+      "method_class": "structure_based_moe_query",
+      "pharmacophore_source": "complex/pose-derived structure-based query followed by virtual screening",
+      "what_it_can_teach": [
+        "Nucleotide-like and acceptor-rich binding motifs require family dominance checks before HBA/Neg compression.",
+        "Hydrophobic/aromatic anchors should be retained only when they define independent pocket subregions.",
+        "Docking and interaction analysis are second-stage filters, not replacements for pharmacophore mechanism compression."
+      ]
+    },
+    {
+      "id": "tubulin_parp_hybrid_dual_inhibitor_jmedchem_2021",
+      "citation_label": "dual tubulin/PARP inhibitor hybrid workflow, J. Med. Chem. 2021",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/34670362/",
       "method_class": "hybrid_virtual_screening",
-      "reported_pharmacophore": "Ligand-based or hybrid screening protocol; article-specific settings must be extracted before structure reproduction.",
-      "reconstruction_level_possible": "L0-L1 from abstract/metadata; higher levels require full method and supporting data.",
-      "value_for_v2": "Tests whether the workflow can declare insufficient public input instead of overclaiming strict reproduction."
+      "pharmacophore_source": "hybrid pharmacophore/docking/SAR workflow",
+      "what_it_can_teach": [
+        "Dual-target design requires preserving mechanism features that are independently meaningful for each pocket, then resolving conflicts at the molecule-design layer.",
+        "A feature that improves one target but destroys another target's essential anchor should be conditional, not automatically core.",
+        "Validation should include orthogonal assay or docking evidence because pharmacophore matching alone can overstate dual activity."
+      ]
     },
     {
-      "id": "tubulin_ligand_virtual_screening_protocol",
-      "title": "The discovery of potential tubulin inhibitors: a combination of pharmacophore modeling, virtual screening and molecular docking studies",
-      "authors_include": ["Miaomiao Niu"],
-      "year": 2014,
-      "source_url": "https://pubmed.ncbi.nlm.nih.gov/?term=The+discovery+of+potential+tubulin+inhibitors+pharmacophore+modeling+virtual+screening+molecular+docking+Miaomiao+Niu",
+      "id": "tubulin_virtual_screening_molecules_2019",
+      "citation_label": "tubulin pharmacophore/virtual-screening workflow, Molecules 2019",
+      "url": "https://www.mdpi.com/1420-3049/24/17/3181",
       "method_class": "hybrid_virtual_screening",
-      "reported_pharmacophore": "Pharmacophore plus docking workflow.",
-      "reconstruction_level_possible": "Depends on availability of training set, feature definitions, and docking receptor state.",
-      "value_for_v2": "Supports separating pharmacophore filtering from docking ranking during failure attribution."
+      "pharmacophore_source": "pharmacophore plus docking or downstream screening",
+      "what_it_can_teach": [
+        "Hydrophobic/aromatic regions in elongated pockets should be segmented by independent anchors rather than counted as many redundant Hyd points.",
+        "Selected models should balance ligand-shape filtering with downstream docking pose plausibility."
+      ],
+      "status": "candidate entry; verify exact article scope before using for article-target coordinate comparison"
     },
     {
-      "id": "parp_ligand_based_protocol",
-      "title": "PARP-based pharmacophore model development, virtual screening, and molecular docking studies",
-      "authors_include": ["Miaomiao Niu"],
-      "year": 2014,
-      "source_url": "https://pubmed.ncbi.nlm.nih.gov/?term=PARP-based+pharmacophore+model+development+virtual+screening+molecular+docking+Miaomiao+Niu",
+      "id": "parp_docking_dynamics_followup",
+      "citation_label": "PARP-family docking/dynamics follow-up workflow",
       "method_class": "hybrid_virtual_screening",
-      "reported_pharmacophore": "Pharmacophore plus docking workflow, likely ligand-based or mixed protocol.",
-      "reconstruction_level_possible": "L0-L1 unless full feature geometry and training set are available.",
-      "value_for_v2": "Tests PARP/nucleotide-like pocket handling and ligand-based versus structure-based boundary."
+      "pharmacophore_source": "pharmacophore-informed docking and dynamics interpretation",
+      "what_it_can_teach": [
+        "MD stability can promote a lower-scored pharmacophore point if it represents a persistent hotspot.",
+        "A point that vanishes across stable conformers should be auxiliary unless SAR proves it is essential."
+      ],
+      "status": "methodological placeholder for future confirmed literature entry"
     },
     {
-      "id": "plk1_pbd_structure_based_moe_query",
-      "title": "Structure-based pharmacophore modeling, virtual screening, molecular docking and biological evaluation for discovering novel PLK1-PBD inhibitors",
-      "authors_include": ["Miaomiao Niu"],
-      "year": 2019,
-      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6749218/",
-      "method_class": "structure_based_moe_query",
-      "reported_public_inputs": {
-        "structure": "PDB complex publicly referenced in article",
-        "model": "Five-feature model selected by validation statistics; reported families include hydrophobic, anionic/acceptor, acceptor, donor/acceptor, and aromatic roles."
-      },
-      "reconstruction_level_possible": "L2-L3 if article figure/feature table is extracted and MOE Query Editor settings are reproduced.",
-      "value_for_v2": "High-value article for strict MOE Query Editor reconstruction and mechanism compression of phosphorylated peptide-binding pockets."
-    },
-    {
-      "id": "parp1_structure_based_moe_query",
-      "title": "Structure-Based Pharmacophore Modeling, Virtual Screening, Molecular Docking and Biological Evaluation for Identification of Potential PARP-1 Inhibitors",
-      "authors_include": ["Miaomiao Niu"],
-      "year": 2019,
-      "source_url": "https://www.mdpi.com/1420-3049/24/23/4258",
-      "doi": "10.3390/molecules24234258",
-      "method_class": "structure_based_moe_query",
-      "reported_public_inputs": {
-        "structure": "Article reports protein-ligand complex structures and a final pharmacophore model.",
-        "validation": "Pharmacophore model selection uses validation against active/inactive or decoy-like datasets."
-      },
-      "reconstruction_level_possible": "L2-L3 if final feature geometry and selected PDB/ligand state are extracted.",
-      "value_for_v2": "Improves rules for ligand-induced pocket pharmacophores, cofactor-like pocket constraints, and GH/enrichment-aware model selection."
-    },
-    {
-      "id": "tubulin_structure_based_screening",
-      "title": "Structure-Based Pharmacophore Design and Virtual Screening for Novel Tubulin Inhibitors",
-      "authors_include": ["Miaomiao Niu"],
-      "year": 2019,
-      "source_url": "https://pubmed.ncbi.nlm.nih.gov/?term=Structure-Based+Pharmacophore+Design+and+Virtual+Screening+for+Novel+Tubulin+Inhibitors+Miaomiao+Niu",
-      "method_class": "structure_based_moe_query",
-      "reported_pharmacophore": "Structure-based pharmacophore and virtual screening workflow.",
-      "reconstruction_level_possible": "L1-L3 depending on public PDB/ligand/feature figure extraction.",
-      "value_for_v2": "Improves deep hydrophobic pocket, aromatic wall, and ligand-shape boundary rules."
-    },
-    {
-      "id": "dual_tubulin_parp1_inhibitor_jacs",
-      "title": "Discovery of a Dual Tubulin and Poly(ADP-Ribose) Polymerase-1 Inhibitor by Structure-Based Pharmacophore Modeling, Virtual Screening, Molecular Docking, Molecular Dynamics Simulation, and Biological Evaluation",
-      "authors_include": ["Miaomiao Niu"],
-      "year": 2021,
-      "source_url": "https://pubs.acs.org/",
-      "local_user_file_hint": "ja1c12075_si_001.pdf may contain supporting information in the user's literature folder.",
-      "method_class": "hybrid_virtual_screening",
-      "reported_pharmacophore": "Dual-target, structure-based pharmacophore plus docking/MD/biological evaluation workflow.",
-      "reconstruction_level_possible": "L2-L3 for each target if structures and feature models are fully extracted; full pipeline requires docking and MD settings.",
-      "value_for_v2": "Improves multi-target pharmacophore comparison, cross-target feature pruning, and evidence-layer separation."
-    },
-    {
-      "id": "nrp1_s_rbd_peptide_moe_query",
-      "title": "Dual S-RBD/NRP1-targeting peptide discovery using pharmacophore and structure-based virtual screening",
-      "authors_include": ["Miaomiao Niu"],
-      "year": 2020,
-      "source_url": "user-provided local PDF or publisher page required for exact metadata",
-      "local_user_file_hint": "Discovery of dual S-RBD NRP1-targeting peptides*.pdf in local literature folders",
-      "method_class": "structure_based_moe_query",
-      "reported_pharmacophore": "MOE pharmacophore query or structure-derived peptide screening model.",
-      "reconstruction_level_possible": "L2-L3 when article feature list and PDB chains are extracted.",
-      "value_for_v2": "Improves receptor-side peptide interface models and distinction between receptor-side and ligand-side feature coordinates."
-    },
-    {
-      "id": "dual_targeting_cyclic_d_peptide_nrp1",
-      "title": "Highly potent, selective, biostable, and cell-permeable cyclic D-peptide for dual-targeting therapy of lung cancer",
-      "authors_include": ["Miaomiao Niu"],
-      "year": 2021,
-      "source_url": "https://pubs.acs.org/",
-      "local_user_file_hint": "highly-potent-selective-biostable-and-cell-permeable-cyclic-d-peptide-for-dual-targeting-therapy-of-lung-cancer.pdf",
-      "method_class": "structure_based_moe_query",
-      "reported_pharmacophore": "NRP1-BD pharmacophore features reported in text; dual-target cyclic peptide design and validation.",
-      "reconstruction_level_possible": "L2-L3 if feature list and receptor/peptide state are extracted.",
-      "value_for_v2": "Improves cyclic peptide, CendR-like motif, terminal clamp, and receptor-side versus peptide-side feature handling."
+      "id": "peptide_interface_public_structure_cases",
+      "citation_label": "peptide-interface structure cases used for v2 rule iteration",
+      "method_class": "peptide_interface_design",
+      "pharmacophore_source": "public protein-peptide structures and article-style MOE query figures",
+      "what_it_can_teach": [
+        "Backbone-register constraints should be expressed with a few HBA/HBD points, not every backbone contact.",
+        "Side-chain hotspots should be selected when they enter independent subpockets, carry dominant charge/aromatic chemistry, or lock peptide orientation.",
+        "Mechanism zones are transferable; peptide names, residue numbers, and PDB IDs are not."
+      ],
+      "status": "aggregate category, not a single citation"
     }
+  ],
+  "v2_rule_updates": [
+    {
+      "rule": "feature_perspective_lock",
+      "principle": "Before selection, decide whether features describe ligand/peptide-side chemistry or receptor-complement chemistry. Default to ligand-side query for MOE article-style virtual screening models."
+    },
+    {
+      "rule": "dominant_chemistry_preservation",
+      "principle": "Strong ionic groups retain Pos/Neg semantics even if they also satisfy donor/acceptor annotations."
+    },
+    {
+      "rule": "aromatic_wall_projection",
+      "principle": "A receptor aromatic wall can justify a ligand-side Aro feature only when it imposes shape or pi-recognition constraints; otherwise compress to Hyd or auxiliary."
+    },
+    {
+      "rule": "independent_zone_compression",
+      "principle": "Select one representative per independent mechanism zone unless two non-substitutable chemical hypotheses coexist."
+    },
+    {
+      "rule": "moe_raw_is_candidate_pool",
+      "principle": "MOE annotations are not final pharmacophores. They must be audited by burial, directionality, substitutability, recurrence, and validation evidence."
+    }
+  ],
+  "validation_policy": [
+    "For structure-based MOE query papers: compare strict coordinate/family recovery and looser mechanism-region recovery.",
+    "For ligand-based papers: compare enrichment, GH score, active/decoy behavior, and feature-count discipline rather than PDB coordinates.",
+    "For hybrid workflows: require pharmacophore coverage plus docking/pose/SAR consistency before promoting a feature to core."
   ]
 }

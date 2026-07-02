@@ -1,0 +1,9 @@
+{
+  "structure_pdb": "C:/path/to/structure.pdb",
+  "output_dir": "C:/path/to/ph4_run",
+  "moe_bin": "C:/Program Files/moe2024/bin-win64/moebatch.exe",
+  "receptor_chain": "A",
+  "ligand_chain": "B",
+  "site_radius": 6.0,
+  "feature_perspective": "ligand"
+}
