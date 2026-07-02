@@ -73,18 +73,6 @@ The output includes:
 
 This skill is written as a transferable workflow. It intentionally avoids target-specific examples, benchmark language, and case-specific residue memory.
 
-## 2.0 Literature-Iterative Edition
-
-Version 2.0 is stored under `v2/moe-ph4-cli-v2`. It adds a literature-driven iteration layer:
-
-- classify articles by pharmacophore methodology;
-- reconstruct article-style models when public inputs are sufficient;
-- compare generated models against feature-family and spatial-region targets;
-- attribute failures to structure preparation, MOE candidate generation, contact-derived candidates, family normalization, or selected compression;
-- write only transferable rule deltas back into the 2.0 mechanism curation layer.
-
-The 1.0 root workflow remains stable. The 2.0 layer is where method depth is expanded through controlled literature iteration.
-
 ## Disclaimer
 
 This repository is for lawful research workflow automation and educational method development. Users are responsible for software licensing, data rights, and compliance with all applicable institutional, commercial, and legal requirements.
