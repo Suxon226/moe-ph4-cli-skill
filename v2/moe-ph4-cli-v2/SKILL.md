@@ -47,7 +47,7 @@ Use this skill for MOE-based pharmacophore construction, mechanism-curated featu
 ## Scripts
 
 - `scripts/structure_qc.js`: PDB chain, residue, ligand/peptide, and contact QC.
-- `scripts/moe_native_site_ph4.js`: emits and optionally runs a MOE SVL driver for raw site pharmacophore generation.
+- `scripts/moe_native_site_ph4.js`: generates structure-contact raw candidates and uses MOE `ph4_QueryCreateF/ph4_QueryWriteFile` to write the raw `.ph4`.
 - `scripts/master_moe_ph4_curate.js`: mechanism-curates normalized full candidate CSV into selected `.ph4`.
 - `scripts/write_selected_ph4.js`: writes selected features to `.ph4`.
 - `scripts/compare_article_target.js`: compares curated features with article-style target JSON.
@@ -81,7 +81,7 @@ node C:\Users\PC\.qclaw\skills\moe-ph4-cli-v2\scripts\moe_native_site_ph4.js `
   --config C:\path\to\moe_native_config.json --run
 ```
 
-The generated SVL is intentionally inspectable. If a MOE version changes function signatures, inspect `02_moe_raw/moe_native_site_ph4.log` and `references/svl_errors.md`, then adjust only the MOE adapter layer. Do not weaken the downstream mechanism-curation rules to compensate for an upstream extraction issue.
+The generated SVL is intentionally inspectable. Current v2 adapter writes a standard raw candidate CSV from structure-contact preannotation, then asks MOE to write the `.ph4` query. If a MOE version changes function signatures, inspect `02_moe_raw/moe_native_site_ph4.log` and `references/svl_errors.md`, then adjust only the MOE adapter layer. Do not weaken the downstream mechanism-curation rules to compensate for an upstream extraction issue.
 
 ## Article-Style Comparison
 

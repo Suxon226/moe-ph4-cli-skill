@@ -22,12 +22,21 @@ node C:\Users\PC\.qclaw\skills\moe-ph4-cli-v2\scripts\moe_native_site_ph4.js `
   --config C:\path\to\moe_native_config.json --run
 ```
 
-`--run` 会调用 `moebatch.exe -run <generated.svl>`。不加 `--run` 时只生成 SVL 和 manifest，适合先审查。
+`--run` 会调用 `moebatch.exe -run <generated.svl>`。不加 `--run` 时只生成 SVL、raw CSV 和 manifest，适合先审查。
+
+当前 adapter 的已验证行为：
+
+1. JS 层先读取 PDB，按 receptor/ligand chain 和距离阈值生成结构接触预注释候选。
+2. 候选写入标准 `moe_raw_features.csv`，字段包含 family、MOE expr、坐标、半径、site zone、最近受体/配体原子等。
+3. 生成 SVL driver，用 MOE `ph4_QueryCreateF` 和 `ph4_QueryWriteFile` 写出 `moe_raw_site_query.ph4`。
+4. `moe_raw_features.csv` 可以直接作为 `master_moe_ph4_curate.js` 的 `full_features_csv` 输入。
+
+注意：`ph4_AnnotationRec` 已被验证能返回 MOE annotation record，但该 record 不是 `ph4_QueryCreateF` 可直接接受的 feature tagvector；它需要继续解析后才能进入 CSV。当前版本明确标记为 `pdb_contact_preannotation_to_moe_ph4`，不要把它误称为已经完全解析了 MOE annotation records。
 
 ## MOE 层原则
 
 1. 先做结构 QC，再进 MOE。没有链、配体/肽、辅因子、金属、水和缺失区判断，MOE 原始点会很容易变成“哪里有极性原子就哪里有点”。
-2. MOE 原始注释只作为候选池，不等于最终药效团。最终模型必须经过位点分区、冗余合并、能量/几何/可替代性筛选。
+2. MOE/adapter 原始注释只作为候选池，不等于最终药效团。最终模型必须经过位点分区、冗余合并、能量/几何/可替代性筛选。
 3. 默认采用 ligand/peptide-side perspective。多数文章中的 Query Pharmacophore 描述的是候选分子需要携带的化学功能团，而不是受体互补点。
 4. 对 `ph4_AnnotationPairs`，SVL 选项必须保留 receptor annotation 语义；若日志出现 `exit NYET`，优先检查 `rec:1`、原子向量和 site selection。
 5. `.ph4` 必须与结构在 MOE 中共同展示，确认每个点确实落在相应口袋、肽段、辅因子或热点附近。
